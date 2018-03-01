@@ -211,20 +211,7 @@ void *compute_image(void *arg)
 			// Determine the point in x,y space for that pixel.
 			double x = xmin + i*(xmax-xmin)/width;
 			double y = ymin + j*(ymax-ymin)/height;
-
-			/* if (i==xmin && j==ymin) {
-				printf("(%i, %i) -> (%f, %f)\n", xmin, ymin, x, y);
-			}
-			else if (i==xmax && j==ymin) {
-				printf("(%i, %i) -> (%f, %f)\n", xmax, ymin, x, y);
-			}	
-			else if (i==xmin && j==ymax) {
-				printf("(%i, %i) -> (%f, %f)\n", xmin, ymax, x, y);
-			}
-			else if (i==xmax && j==ymax) {
-				printf("(%i, %i) -> (%f, %f)\n", xmax, ymax, x, y);
-			} */
-			
+	
 			// Compute the iterations at that point.
 			int iters = iterations_at_point(x,y,max);
 			//printf("x:%f y:%f i:%i \n", x, y, iters);
