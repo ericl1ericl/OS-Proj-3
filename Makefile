@@ -17,4 +17,4 @@ bitmap.o: bitmap.c
 	gcc -Wall -g -c bitmap.c -o bitmap.o
 
 clean:
-	rm -f *.o mandel mandelmovie
+	rm -f *.bmp *.o mandel mandelmovie
