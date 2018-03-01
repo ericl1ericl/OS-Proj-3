@@ -1,11 +1,11 @@
 // elayne & gking5
 // Project 3
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <sys/wait.h>
-//#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
 
@@ -13,9 +13,17 @@
 #define MINSVAL .00001
 
 int startedImages = 0; 
-float sIncrement = (MAXSVAL - MINSVAL) / 50;
-float sVal = 2;
-char *mandelCommand[] = {"mandel", "-W",  "500",  "-H",  "500", "-x", "0.35", "-y",  "0.1", "-m", "2000", "-s", "000000000", "-o", "mandel00.bmp", NULL};// TODO add variable s value to this command!!!
+double sIncrement = (MAXSVAL - MINSVAL) / 50;
+double sVal = 2;
+char *mandelCommand[] = {"mandel",
+"-W", "500",
+"-H",  "500",
+"-x", "0.35",
+"-y",  "0.1",
+"-m", "2000",
+"-s", "000000000",
+"-o", "mandel00.bmp",
+NULL};
 
 void usage() {
   printf("usage: ./mandelmovie \t<MAXPROCESSES>\n");
@@ -23,28 +31,20 @@ void usage() {
 }
 
 int forkMandel() {
-  int res = fork();
+
+  sVal -= sIncrement;
+  pid_t res = fork();
 
   if (res == -1) {
     printf("error: fork failed\n");
     return -1;
   } else if (res == 0) { // child process
-    if (execvp(mandelCommand[0], mandelCommand) < 0) { // TODO fill out execvp, make sure having this in a function works OK
-      printf("error: exec failed\n");
-      return -1;
-    }
+    asprintf(&mandelCommand[12], "%lf", sVal); // load -s flag value into command string
+    asprintf(&mandelCommand[14], "mandel%02d.bmp", startedImages); // load -o flag value into command sting
+    execvp(mandelCommand[0], mandelCommand); // run mandel
+    printf("error: exec failed\n");
+    return -1;
   } else {
-    sVal -= sIncrement;
-    char bmpName[12];
-    strcpy(bmpName, "mandel");
-    char numbers[2] = "\0\0"; 
-    sprintf(numbers, "%02d", startedImages);
-    strcat(bmpName, numbers);
-    strcat(bmpName, ".bmp");
-    printf(bmpName);
-    //sprintf(mandelCommand[14], "mandel%d")
-    //printf("%.2f", sVal); // TODO weird seg fault from next line
-    //sprintf(mandelCommand[2], "test");
     startedImages++;
   }
 
@@ -68,11 +68,6 @@ int main(int argc, char *argv[]) {
     
   }
 
-  //for (int i = 0; i < 50; i++) {
-  //  sVal -= sIncrement;     
-  //  printf("%.6f", sVal);
-  //}
-
   for (int i = 0; i < maxProcesses; i++) { // launch starter batch of maxProcesses processes
     forkMandel();
   }
@@ -83,9 +78,6 @@ int main(int argc, char *argv[]) {
   }
 
   wait(NULL); // let any remaining processes finish
-
-
-
 
   return 0;
 }
