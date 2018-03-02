@@ -16,13 +16,14 @@ int startedImages = 0;
 double sIncrement = (MAXSVAL - MINSVAL) / 50;
 double sVal = 2;
 char *mandelCommand[] = {"mandel",
-"-W", "500",
-"-H",  "500",
-"-x", "0.35",
-"-y",  "0.1",
-"-m", "2000",
-"-s", "000000000",
+"-W", "1024",
+"-H",  "1024",
+"-x", "0.2869325",
+"-y",  "0.0142905",
+"-m", "1000",
+"-s", "0.000001",
 "-o", "mandel00.bmp",
+"-n", "4",
 NULL};
 
 void usage() {
