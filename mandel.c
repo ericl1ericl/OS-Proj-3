@@ -1,3 +1,5 @@
+// project 3
+// Fleetwood_PC: elayne, gking5
 
 #include "bitmap.h"
 
@@ -9,15 +11,12 @@
 #include <string.h>
 #include <pthread.h>
 
-//compute_image(bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max);
-
 typedef struct {
-	struct bitmap *my_bm;
 	struct bitmap *global_bm;
-	int xmin;
-	int xmax;
-	int ymin;
-	int ymax;
+	double xmin;
+	double xmax;
+	double ymin;
+	double ymax;
 	int max;
 	int lines;
 	int minline;
@@ -25,7 +24,6 @@ typedef struct {
 
 int iteration_to_color( int i, int max );
 int iterations_at_point( double x, double y, int max );
-// void compute_image( struct bitmap *bm, double xmin, double xmax, double ymin, double ymax, int max );
 void *compute_image(void *arg);
 
 void show_help()
@@ -109,15 +107,10 @@ int main( int argc, char *argv[] )
 	bitmap_reset(bm,MAKE_RGBA(0,0,255,0));
 
 	// Compute the Mandelbrot image
-	//compute_image(bm,xcenter-scale,xcenter+scale,ycenter-scale,ycenter+scale,max);
 	
 	pthread_t threadID[num_threads];
-	//pthread_mutex_t *mutex;
-	//threadID = malloc(num_threads*sizeof(pthread_t));
 	split_bm *split_bm_data;
 	split_bm_data = malloc(num_threads*sizeof(split_bm));
-	//mutex = malloc(sizeof(pthread_mutex_t));
-	//pthread_mutex_init(mutex, NULL);
 
 	int i;
 	int rows = image_height / num_threads;
@@ -146,9 +139,7 @@ int main( int argc, char *argv[] )
 		if (i != 0) {
 			split_bm_data[i].minline = split_bm_data[i-1].minline + split_bm_data[i-1].lines;
 		}
-		pthread_create(&threadID[i], NULL, compute_image, (void*)&split_bm_data[i]);
-		/* printf("rows for thread %i: %i\n", i, split_bm_data[i].lines);
-		printf("row: %i - %i\n", split_bm_data[i].minline, split_bm_data[i].minline + split_bm_data[i].lines - 1); */
+		pthread_create(&threadID[i], NULL, compute_image, (void*)&split_bm_data[i]); 
 	}
 
 	void *status;
@@ -161,10 +152,8 @@ int main( int argc, char *argv[] )
 		fprintf(stderr,"mandel: couldn't write to %s: %s\n",outfile,strerror(errno));
 		return 1;
 	}
-	//free(threadID);
+
 	free(split_bm_data);
-	//pthread_mutex_destroy(mutex);
-	//free(mutex);
 	return 0;
 }
 
@@ -173,39 +162,26 @@ Compute an entire Mandelbrot image, writing each point to the given bitmap.
 Scale the image to the range (xmin-xmax,ymin-ymax), limiting iterations to "max"
 */
 
-//void compute_image( struct bitmap *bm, double xmin, double xmax, double ymin, double ymax, int max )
-
-/*typedef struct {
-	struct bitmap *my_bm;
-	int xmin;
-	int xmax;
-	int ymin;
-	int ymax;
-	int max;
-	int lines;
-	int minline;
-} split_bm; */
 void *compute_image(void *arg)
 {
 	split_bm *arg_bm;
 	arg_bm = arg;
 	int i,j;
 	struct bitmap *bm = arg_bm->global_bm;
-	int xmin = arg_bm->xmin;
-	int xmax = arg_bm->xmax;
-	int ymin = arg_bm->ymin;
-	int ymax = arg_bm->ymax;
+	double xmin = arg_bm->xmin;
+	double xmax = arg_bm->xmax;
+	double ymin = arg_bm->ymin;
+	double ymax = arg_bm->ymax;
 	int max = arg_bm->max;
 	int lines = arg_bm->lines;
 	int minline = arg_bm->minline;
 
 	int width = bitmap_width(bm);
-	int height = lines;
+	int height = bitmap_height(bm);
 
 	// For every pixel in the image...
 
 	for(j=minline;j<minline+lines;j++) {
-	//for (j=0;j<height;j++) {	
 		for(i=0;i<width;i++) {
 
 			// Determine the point in x,y space for that pixel.
@@ -214,10 +190,8 @@ void *compute_image(void *arg)
 	
 			// Compute the iterations at that point.
 			int iters = iterations_at_point(x,y,max);
-			//printf("x:%f y:%f i:%i \n", x, y, iters);
 	
 			// Set the pixel in the bitmap.
-			//printf("%i\n", iters);
 			bitmap_set(bm,i,j,iters);
 		}
 	}
